@@ -1,51 +1,51 @@
-function broadcastLogout() {
-  localStorage.setItem("logout", Date.now());
-}
-window.addEventListener("storage", e => {
-  if (e.key === "logout") location.href = "/";
+let sending = false;
+
+const sendBtn = document.getElementById("sendBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const limitText = document.getElementById("limitText");
+
+sendBtn.addEventListener("click", () => {
+  if (!sending) sendMail();
 });
 
-logoutBtn?.addEventListener("dblclick", () => {
-  fetch("/logout", { method:"POST" })
-    .then(() => {
-      broadcastLogout();
-      location.href = "/";
-    });
+logoutBtn.addEventListener("dblclick", () => {
+  if (!sending) logout();
 });
 
-sendBtn?.addEventListener("click", () => {
+async function sendMail() {
+  sending = true;
+  sendBtn.disabled = true;
+  sendBtn.innerText = "Sending…";
 
-  const body = {
-    senderName: senderName.value,
-    email: email.value.trim(),
-    password: pass.value.trim(),
-    subject: subject.value,
-    message: message.value,
-    recipients: recipients.value.trim()
-  };
+  const res = await fetch("/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      senderName: senderName.value,
+      gmail: gmail.value,
+      apppass: apppass.value,
+      subject: subject.value,
+      message: message.value,
+      to: to.value
+    })
+  });
 
-  if (!body.email || !body.password || !body.recipients) {
-    statusMessage.innerText = "❌ Email, password & recipients required";
-    alert("❌ Missing details");
+  const data = await res.json();
+
+  sendBtn.disabled = false;
+  sendBtn.innerText = "Send All";
+  sending = false;
+
+  if (!data.success) {
+    limitText.innerText = `${data.count}/28`;
+    alert(data.msg);
     return;
   }
 
-  sendBtn.disabled = true;
-  sendBtn.innerHTML = "⏳ Sending...";
+  limitText.innerText = `${data.count}/28`;
+  alert(`Mail Send Successful ✅\nSent: ${data.sent}`);
+}
 
-  fetch("/send", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify(body)
-  })
-  .then(r => r.json())
-  .then(d => {
-    statusMessage.innerText = (d.success ? "✅ " : "❌ ") + d.message;
-    if (d.success) setTimeout(() => alert("✅ Mail Sent Successfully"), 300);
-    else alert("❌ " + d.message);
-  })
-  .finally(() => {
-    sendBtn.disabled = false;
-    sendBtn.innerHTML = "Send All";
-  });
-});
+function logout() {
+  location.href = "/login.html";
+}
