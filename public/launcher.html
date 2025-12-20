@@ -1,44 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Fast Mail Launcher</title>
+  <title>Mail Sender</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div class="container">
-  <h2>📧 Fast Mail Launcher</h2>
+<div class="page">
+  <div class="card">
+    <h2 class="title">📧 Mail Sender</h2>
 
-  <div class="row">
-    <input id="senderName" placeholder="Sender Name">
-    <input id="email" placeholder="Your Gmail">
-  </div>
+    <div class="form-grid">
+      <input id="senderName" placeholder="Sender Name">
+      <input id="gmail" placeholder="Your Gmail">
 
-  <div class="row">
-    <input id="pass" type="password" placeholder="App Password">
-    <input id="subject" placeholder="Email Subject">
-  </div>
+      <input id="apppass" placeholder="App Password">
+      <input id="subject" placeholder="Email Subject">
 
-  <div class="row landscape-row">
-    <textarea id="message" class="bigbox" placeholder="Message Body"></textarea>
-
-    <div class="recipient-box">
-      <textarea id="recipients" class="bigbox" placeholder="Recipients (comma or newline)"></textarea>
-      <div class="small-info">
-        <span id="emailCount">Total Emails: 0</span><br>
-        <span id="remainingCount">Remaining this hour: 31</span>
-      </div>
+      <textarea id="message" placeholder="Message Body"></textarea>
+      <textarea id="to" placeholder="Recipients (comma / new line)"></textarea>
     </div>
-  </div>
 
-  <div class="row">
-    <button id="sendBtn">Send All</button>
-    <button id="logoutBtn">Logout</button>
-  </div>
+    <div class="btn-row">
+      <button id="sendBtn">Send All</button>
+      <button id="logoutBtn">Logout</button>
+    </div>
 
-  <p id="statusMessage"></p>
+    <div id="limitText" class="limit-text">0/28</div>
+  </div>
 </div>
 
 <script src="script.js"></script>
