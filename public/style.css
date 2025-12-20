@@ -1,99 +1,97 @@
-* { margin:0; padding:0; box-sizing:border-box; font-family:"Segoe UI", sans-serif; }
+* {
+  box-sizing: border-box;
+}
 
 body {
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  padding-top:40px;
-  background:#eef3ff;
+  margin: 0;
+  background: #eef3fb;
+  font-family: Arial, sans-serif;
 }
 
-/* MAIN CONTAINER */
-.container {
-  background:#fff;
-  padding:40px;
-  border-radius:20px;
-  width:1250px;     /* FIXED width like screenshot */
-  box-shadow:0 12px 32px rgba(0,0,0,0.12);
+.login-box {
+  width: 360px;
+  margin: 120px auto;
+  background: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  text-align: center;
 }
 
-.container h2 {
-  text-align:center;
-  font-size:34px;
-  margin-bottom:25px;
+.login-box input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
 }
 
-/* ROWS */
-.row {
-  display:flex;
-  gap:25px;
-  margin-bottom:22px;
+.login-box button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 16px;
 }
 
-.row input,
-.row textarea,
-.row button {
-  flex:1;
-  padding:14px;
-  border-radius:10px;
-  border:1px solid #cbd5e1;
+.page {
+  display: flex;
+  justify-content: center;
+  padding-top: 40px;
 }
 
-/* MESSAGE + RECIPIENTS SIDE-BY-SIDE */
-.landscape-row {
-  align-items:flex-start;
+.card {
+  width: 980px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 36px 40px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
 }
 
-.bigbox {
-  min-height:240px;      /* size same as screenshot */
-  resize:none;
-  font-size:15px;
+.title {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 28px;
 }
 
-/* RECIPIENT BOX */
-.recipient-box {
-  flex:1;
-  display:flex;
-  flex-direction:column;
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 24px;
 }
 
-.small-info {
-  text-align:right;
-  margin-top:8px;
-  font-size:14px;
-  color:#1a73e8;
+input, textarea {
+  padding: 14px 16px;
+  font-size: 15px;
+  border-radius: 12px;
+  border: 1px solid #d6dbe3;
 }
 
-/* BUTTONS */
-.row button {
-  background:#3b82f6;
-  color:#fff;
-  border:none;
-  font-size:20px;
-  cursor:pointer;
-  padding:18px;
-  height:65px;
-  border-radius:12px;
+textarea {
+  height: 170px;
+  resize: none;
 }
 
-.row button:hover {
-  background:#2563eb;
+.btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin-top: 32px;
 }
 
-/* STATUS MESSAGE */
-#statusMessage {
-  text-align:center;
-  color:#ef4444;
-  font-size:17px;
-  margin-top:15px;
+.btn-row button {
+  padding: 16px;
+  font-size: 17px;
+  border-radius: 14px;
+  border: none;
+  background: #3b82f6;
+  color: #fff;
+  cursor: pointer;
 }
 
-/* LOGIN CARD (unchanged) */
-.login-card {
-  background:#fff;
-  padding:35px;
-  border-radius:16px;
-  width:380px;
-  text-align:center;
-  box-shadow:0 10px 30px rgba(0,0,0,0.12);
+.limit-text {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #374151;
 }
