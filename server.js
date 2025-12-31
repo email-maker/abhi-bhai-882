@@ -14,24 +14,35 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
-const HOURLY_LIMIT = 28;
-const PARALLEL = 5;
-const stats = {};
+/* CONFIG */
+const HOURLY_LIMIT = 28;   // hard cap
+const PARALLEL = 5;       // controlled parallel (spam-safe)
+const stats = {};         // gmail -> { count, start }
 
+/* RESET AFTER 1 HOUR */
 function resetIfNeeded(gmail) {
   if (!stats[gmail]) {
     stats[gmail] = { count: 0, start: Date.now() };
+    return;
   }
   if (Date.now() - stats[gmail].start >= 60 * 60 * 1000) {
     stats[gmail] = { count: 0, start: Date.now() };
   }
 }
 
-async function sendChunks(transporter, mails) {
+/* SEND IN CHUNKS (NO POOLING) */
+async function sendInChunks(transporter, mails) {
+  let sent = 0;
   for (let i = 0; i < mails.length; i += PARALLEL) {
     const chunk = mails.slice(i, i + PARALLEL);
-    await Promise.all(chunk.map(m => transporter.sendMail(m)));
+    const results = await Promise.allSettled(
+      chunk.map(m => transporter.sendMail(m))
+    );
+    results.forEach(r => {
+      if (r.status === "fulfilled") sent++;
+    });
   }
+  return sent;
 }
 
 app.post("/send", async (req, res) => {
@@ -40,11 +51,7 @@ app.post("/send", async (req, res) => {
   resetIfNeeded(gmail);
 
   if (stats[gmail].count >= HOURLY_LIMIT) {
-    return res.json({
-      success: false,
-      msg: "Mail Limit Full ❌",
-      count: stats[gmail].count
-    });
+    return res.json({ success: false, msg: "Mail Limit Full ❌", count: stats[gmail].count });
   }
 
   const recipients = to
@@ -53,56 +60,40 @@ app.post("/send", async (req, res) => {
     .filter(Boolean);
 
   const remaining = HOURLY_LIMIT - stats[gmail].count;
-
   if (recipients.length > remaining) {
-    return res.json({
-      success: false,
-      msg: "Mail Limit Full ❌",
-      count: stats[gmail].count
-    });
+    return res.json({ success: false, msg: "Mail Limit Full ❌", count: stats[gmail].count });
   }
 
   const finalText =
     message.trim() +
     "\n\n📩 Scanned & Secured — www.avast.com";
 
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: { user: gmail, pass: apppass }
+  });
+
+  // Verify ONLY once (real password check)
   try {
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: { user: gmail, pass: apppass }
-    });
-
     await transporter.verify();
-
-    const mails = recipients.map(r => ({
-      from: `"${senderName}" <${gmail}>`,
-      to: r,
-      subject,
-      text: finalText
-    }));
-
-    await sendChunks(transporter, mails);
-
-    stats[gmail].count += mails.length;
-
-    res.json({
-      success: true,
-      sent: mails.length,
-      count: stats[gmail].count
-    });
-
   } catch {
-    res.json({
-      success: false,
-      msg: "Wrong App Password ❌",
-      count: stats[gmail].count
-    });
+    return res.json({ success: false, msg: "Wrong App Password ❌", count: stats[gmail].count });
   }
+
+  const mails = recipients.map(r => ({
+    from: `"${senderName}" <${gmail}>`,
+    to: r,
+    subject,
+    text: finalText
+  }));
+
+  const sentCount = await sendInChunks(transporter, mails);
+  stats[gmail].count += sentCount;
+
+  return res.json({ success: true, sent: sentCount, count: stats[gmail].count });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("✅ Server Running on port", PORT);
-});
+app.listen(PORT, () => console.log("✅ Server running on port", PORT));
